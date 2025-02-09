@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 const API_KEY = process.env.GEMINI_API_KEY || "";
 
 export async function POST(req: Request) {
-  const { description, wordlimit = 100 } = await req.json();
+  const { description, wordlimit } = await req.json();
 
   if (!description) {
     return NextResponse.json(
@@ -12,6 +12,8 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
+
+  console.log("wordlimit", wordlimit);
 
   try {
     const genAI = new GoogleGenerativeAI(API_KEY);

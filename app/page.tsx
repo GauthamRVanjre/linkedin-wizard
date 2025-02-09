@@ -5,7 +5,7 @@ import { Loader2, Copy, RefreshCw, Linkedin } from "lucide-react";
 
 export default function PostGenerator() {
   const [description, setDescription] = useState("");
-  const [wordLimit, setWordLimit] = useState("");
+  const [wordlimit, setwordlimit] = useState("");
   const [generatedPost, setGeneratedPost] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -19,7 +19,7 @@ export default function PostGenerator() {
         },
         body: JSON.stringify({
           description,
-          wordLimit: Number.parseInt(wordLimit) || undefined,
+          wordlimit: Number.parseInt(wordlimit) || 100,
         }),
       });
       const data = await response.json();
@@ -67,8 +67,8 @@ export default function PostGenerator() {
           id="wordLimit"
           type="number"
           placeholder="Enter word limit"
-          value={wordLimit}
-          onChange={(e) => setWordLimit(e.target.value)}
+          value={wordlimit}
+          onChange={(e) => setwordlimit(e.target.value)}
           className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500"
         />
       </div>
