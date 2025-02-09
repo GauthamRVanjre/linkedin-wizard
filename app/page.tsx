@@ -1,101 +1,129 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import { Loader2, Copy, RefreshCw, Linkedin } from "lucide-react";
+
+export default function PostGenerator() {
+  const [description, setDescription] = useState("");
+  const [wordLimit, setWordLimit] = useState("");
+  const [generatedPost, setGeneratedPost] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const generatePost = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/generatePost", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          description,
+          wordLimit: Number.parseInt(wordLimit) || undefined,
+        }),
+      });
+      const data = await response.json();
+      setGeneratedPost(data.post);
+    } catch (error) {
+      console.error("Error generating post:", error);
+    }
+    setIsLoading(false);
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(generatedPost);
+    alert("copied post to clipboard");
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
+    <div className="max-w-2xl mx-auto p-4 space-y-6">
+      <h1 className="text-2xl font-bold flex justify-center items-center">
+        <Linkedin />
+        <div className="ml-2 pt-1">Post Generator</div>
+      </h1>
+      <div className="space-y-2">
+        <label
+          htmlFor="description"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Description
+        </label>
+        <textarea
+          id="description"
+          placeholder="Enter post description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500 min-h-[100px]"
         />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      </div>
+      <div className="space-y-2">
+        <label
+          htmlFor="wordLimit"
+          className="block text-sm font-medium text-gray-700"
+        >
+          Word Limit (optional)
+        </label>
+        <input
+          id="wordLimit"
+          type="number"
+          placeholder="Enter word limit"
+          value={wordLimit}
+          onChange={(e) => setWordLimit(e.target.value)}
+          className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500"
+        />
+      </div>
+      <div className="flex space-x-2">
+        <button
+          onClick={generatePost}
+          disabled={isLoading || !description}
+          className={`flex items-center justify-center px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
+            isLoading || !description ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Generating...
+            </>
+          ) : (
+            "Generate Post"
+          )}
+        </button>
+        <button
+          onClick={generatePost}
+          disabled={isLoading || !description}
+          className={`flex items-center justify-center px-4 py-2 text-blue-600 bg-white border border-blue-600 rounded-lg hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
+            isLoading || !description ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          <RefreshCw className="mr-2 h-4 w-4" />
+          Regenerate
+        </button>
+      </div>
+      {generatedPost && (
+        <div className="space-y-2">
+          <label
+            htmlFor="generatedPost"
+            className="block text-sm font-medium text-gray-700"
           >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+            Generated Post
+          </label>
+          <div className="relative">
+            <textarea
+              id="generatedPost"
+              value={generatedPost}
+              readOnly
+              className="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none focus:border-blue-500 min-h-[200px]"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <button
+              onClick={copyToClipboard}
+              className="absolute top-2 right-2 p-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+            >
+              <Copy className="h-4 w-4" />
+            </button>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      )}
     </div>
   );
 }
